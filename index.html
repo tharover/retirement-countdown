@@ -29,10 +29,11 @@
   #setdate { margin:20px auto; padding:12px 18px; width:fit-content; font-size:.9em; font-weight:bold; background:#fff9df; border:3px solid #fff; border-radius:16px; box-shadow:0 4px 0 #e9a85d; }
   #dateInput { font:inherit; color:#27505a; border:2px solid #82cbd0; border-radius:8px; padding:4px; }
   @media (max-width:600px) {
-    #countdown { gap:9px; margin:16px 10px; }
-    .box { min-width:76px; padding:9px 12px; }
-    .box b { font-size:1.8em; }
-    #message { font-size:1.05em; }
+    h1 { font-size:1.6em; }
+    #countdown { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:5px; margin:16px 8px; }
+    .box { min-width:0; padding:8px 2px; border-width:2px; border-radius:12px; font-size:clamp(9px,2.8vw,12px); box-shadow:0 3px 0 #e9a85d,0 6px 10px rgba(64,104,96,.16); }
+    .box b { font-size:2.1em; }
+    #message { font-size:1em; padding:8px 14px; }
   }
   @media (prefers-reduced-motion:reduce) {
     *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
@@ -63,7 +64,6 @@ const monthly = [
   "Collecting seashells for retirement!",
   "Sunsets are calling your name!",
   "Time to catch some waves!",
-  "Even the crabs are cheering!",
   "Pineapples for everyone!",
   "Dolphins are waiting for you!",
   "Umbrella drinks are on ice!",
