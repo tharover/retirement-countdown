@@ -1,0 +1,19 @@
+Retirement countdown illustration assets
+
+All image assets are bundled locally so the page does not depend on external image hosting.
+The Pixabay Content License does not require attribution; these credits are retained for reference.
+
+turtle.png
+  "Turtle, Cartoon, 3D Style" by tanrica
+  https://pixabay.com/illustrations/turtle-cartoon-3d-style-green-9631569/
+
+cruise-ship.png
+  "Cruise, Ship, Travel" by ironhorse71
+  https://pixabay.com/vectors/cruise-ship-travel-vacation-8152401/
+  White background removed and transparent margins trimmed for placement in the beach scene.
+
+finish-flag.png
+  "Checkered Flag, Finish Line, Grand Prix" by Clker-Free-Vector-Images
+  https://pixabay.com/vectors/checkered-flag-finish-line-309862/
+
+License summary: https://pixabay.com/service/license-summary/

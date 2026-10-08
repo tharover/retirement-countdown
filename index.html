@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retirement Countdown</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:"Trebuchet MS",sans-serif; text-align:center; color:#27505a; min-height:100vh; overflow-x:hidden;
+    background:linear-gradient(#82dcf1 0%,#c5f1f4 54%,#f8d88c 54%,#f4bd69 100%); }
+  h1 { margin:20px 10px 0; font-size:clamp(1.8em,4vw,2.6em); color:#fff; text-shadow:0 3px 0 #167b91,0 6px 12px rgba(13,79,91,.25); }
+  #countdown { display:flex; justify-content:center; gap:12px; flex-wrap:wrap; margin:20px; }
+  .box { background:#fff9df; color:#27505a; border:3px solid #fff; border-radius:20px 20px 16px 16px; padding:12px 18px; min-width:90px; box-shadow:0 5px 0 #e9a85d,0 9px 14px rgba(64,104,96,.16); }
+  .box b { display:block; font-size:2.2em; color:#e66d43; }
+  #message { font-size:1.25em; font-weight:bold; margin:10px; background:#fff9df; color:#27505a; display:inline-block; padding:10px 20px; border:3px solid #fff; border-radius:18px; box-shadow:0 5px 0 #e9a85d,0 9px 14px rgba(64,104,96,.16); }
+  #stage { position:relative; width:100%; max-width:1100px; aspect-ratio:1400 / 520; margin:48px auto 0; overflow:hidden; isolation:isolate; }
+  #stage img { position:absolute; display:block; object-fit:contain; }
+  #stage .scene-background { inset:0; width:100%; height:100%; object-fit:fill; }
+  #ship { left:42%; top:8%; width:45%; height:57%; filter:drop-shadow(0 9px 8px rgba(21,63,80,.22)); }
+  #turtle { left:16%; bottom:-3%; width:43%; height:98%; filter:drop-shadow(0 9px 8px rgba(74,68,43,.23)); animation:turtle-bob 2.8s ease-in-out infinite; }
+  #finishFlag { right:7%; bottom:4%; width:15%; height:35%; filter:drop-shadow(0 5px 4px rgba(74,68,43,.24)); }
+  .goal-label { position:absolute; right:7.3%; bottom:36%; z-index:2; padding:6px 15px; color:#fffaf0; background:#e57452; border:2px solid #fffaf0; border-radius:999px; box-shadow:0 3px 0 #b64c40; font-size:clamp(11px,1.5vw,16px); font-weight:bold; letter-spacing:.1em; }
+  @keyframes turtle-bob { 50% { transform:translateY(-4px); } }
+  .date { color:#176d7c; font-size:1.1em; font-weight:bold; }
+  .fall { position:fixed; top:-50px; font-size:23px; animation:fall linear forwards; pointer-events:none; z-index:9; }
+  @keyframes fall { to { transform:translateY(110vh) rotate(360deg); } }
+  body.party { animation:flash 1s infinite alternate; }
+  @keyframes flash { to { filter:hue-rotate(60deg) saturate(1.5); } }
+  #setdate { margin:20px auto; padding:12px 18px; width:fit-content; font-size:.9em; font-weight:bold; background:#fff9df; border:3px solid #fff; border-radius:16px; box-shadow:0 4px 0 #e9a85d; }
+  #dateInput { font:inherit; color:#27505a; border:2px solid #82cbd0; border-radius:8px; padding:4px; }
+  @media (max-width:600px) {
+    #countdown { gap:9px; margin:16px 10px; }
+    .box { min-width:76px; padding:9px 12px; }
+    .box b { font-size:1.8em; }
+    #message { font-size:1.05em; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; }
+  }
+</style>
+</head>
+<body>
+<h1>Countdown to Retirement!</h1>
+<div class="date">Setting sail on <span id="dateLabel"></span></div>
+<div id="countdown"></div>
+<div id="message"></div>
+<div id="stage" role="img" aria-label="A cheerful 3D cartoon turtle heads for a checkered retirement flag while a cruise ship sails past a sunny beach">
+  <img class="scene-background" src="assets/retirement-beach.svg" alt="">
+  <img id="ship" class="scene-item" src="assets/cruise-ship.png" alt="">
+  <img id="turtle" class="scene-item" src="assets/turtle.png" alt="">
+  <span class="goal-label">RETIREMENT</span>
+  <img id="finishFlag" class="scene-item" src="assets/finish-flag.png" alt="">
+</div>
+<div id="setdate">
+  <label>Retirement date: <input type="date" id="dateInput" value="2034-04-28"></label>
+</div>
+<script>
+let RETIRE = new Date(2034, 3, 28, 0, 0, 0); // 4/28/2034 - edit here or use the picker
+const monthly = [
+  "Another month closer — sip something tropical!",
+  "Sand between your toes soon!",
+  "The cruise ship is getting closer!",
+  "Collecting seashells for retirement!",
+  "Sunsets are calling your name!",
+  "Time to catch some waves!",
+  "Even the crabs are cheering!",
+  "Pineapples for everyone!",
+  "Dolphins are waiting for you!",
+  "Umbrella drinks are on ice!",
+  "Fishing trip loading...",
+  "Aloha, almost there!"
+];
+const $ = id => document.getElementById(id);
+function rain(emoji, n) {
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("div");
+    s.className = "fall"; s.textContent = emoji;
+    s.style.left = Math.random()*100 + "vw";
+    s.style.animationDuration = (3 + Math.random()*3) + "s";
+    s.style.animationDelay = Math.random()*2 + "s";
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 9000);
+  }
+}
+function addCalendarMonths(date, months) {
+  const result = new Date(date);
+  const day = result.getDate();
+  result.setDate(1);
+  result.setMonth(result.getMonth() + months);
+  const lastDay = new Date(result.getFullYear(), result.getMonth() + 1, 0).getDate();
+  result.setDate(Math.min(day, lastDay));
+  return result;
+}
+function countdownParts(now) {
+  let years = 0;
+  while (addCalendarMonths(now, (years + 1) * 12) <= RETIRE) years++;
+  let months = 0;
+  while (addCalendarMonths(now, years * 12 + months + 1) <= RETIRE) months++;
+  let cursor = addCalendarMonths(now, years * 12 + months);
+  let days = 0;
+  while (true) {
+    const nextDay = new Date(cursor);
+    nextDay.setDate(nextDay.getDate() + 1);
+    if (nextDay > RETIRE) break;
+    cursor = nextDay;
+    days++;
+  }
+  const remainder = RETIRE - cursor;
+  return {
+    years, months, days,
+    hours: Math.floor(remainder / 36e5),
+    minutes: Math.floor(remainder / 6e4) % 60,
+    seconds: Math.floor(remainder / 1e3) % 60
+  };
+}
+let lastCalendarMonth = null, partyTimer = null;
+function tick() {
+  const now = new Date();
+  $("dateLabel").textContent = RETIRE.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+  const diff = RETIRE - now;
+  if (diff <= 0) {
+    $("countdown").innerHTML = "";
+    $("message").textContent = "🎉 HAPPY RETIREMENT! The vacation begins NOW! 🎉";
+    document.body.classList.add("party");
+    if (!partyTimer) { rain("🎉", 10); partyTimer = setInterval(() => rain(["🎉","🎊","🍹","🐢","🌴"][Math.floor(Math.random()*5)], 8), 2000); }
+    return;
+  }
+  if (partyTimer) { clearInterval(partyTimer); partyTimer = null; document.body.classList.remove("party"); }
+  const {years,months,days,hours,minutes,seconds} = countdownParts(now);
+  $("countdown").innerHTML = [["Years",years],["Months",months],["Days",days],["Hours",hours],["Minutes",minutes],["Seconds",seconds]]
+    .map(([l,v]) => `<div class="box"><b>${v}</b>${l}</div>`).join("");
+  const calendarMonthsLeft = years * 12 + months;
+  if (calendarMonthsLeft !== lastCalendarMonth) {
+    lastCalendarMonth = calendarMonthsLeft;
+    const msg = monthly[calendarMonthsLeft % monthly.length];
+    $("message").textContent = `${msg} (${years} year${years===1?"":"s"}, ${months} month${months===1?"":"s"} to go)`;
+  }
+}
+$("dateInput").addEventListener("change", e => {
+  const [y,m,d] = e.target.value.split("-").map(Number);
+  if (y) { RETIRE = new Date(y, m-1, d); lastCalendarMonth = null; tick(); }
+});
+tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>
